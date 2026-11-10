@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -118,8 +117,8 @@ footer {
   <div id="grid" class="grid"></div>
 
   <div class="notice">
-    Os downloads precisam de links válidos. Distribua apenas
-    arquivos que você tenha autorização para disponibilizar.
+    Os downloads precisam de links válidos. Disponibilize somente
+    arquivos que você tenha autorização para distribuir.
   </div>
 </main>
 
@@ -131,7 +130,7 @@ const apps = [
     name: "PES 2021 — PS4",
     category: "Jogos",
     version: "CUSA18676",
-    description: "Jogo de futebol para PS4. Configure um link de download autorizado.",
+    description: "Jogo de futebol para PS4. Adicione um link de download autorizado.",
     url: ""
   },
   {
@@ -198,15 +197,16 @@ function render() {
 
     const link = document.createElement("a");
     link.className = "btn";
-    link.textContent = app.url ? "Abrir download" : "Link não configurado";
 
-    if (app.url) {
+    if (app.url.trim()) {
+      link.textContent = "Abrir download";
       link.href = app.url;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
     } else {
-      link.classList.add("disabled");
+      link.textContent = "Link não configurado";
       link.href = "#";
+      link.classList.add("disabled");
       link.setAttribute("aria-disabled", "true");
       link.addEventListener("click", event => event.preventDefault());
     }
