@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090b12">
+<title>MDM PKG Store</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #090b12;
+  --panel: #141824;
+  --line: #272d40;
+  --text: #f3f5ff;
+  --muted: #aab2c8;
+  --accent: #8b5cf6;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 system-ui, sans-serif;
+}
+header {
+  padding: 28px 18px;
+  border-bottom: 1px solid var(--line);
+  background: #111323;
+}
+.wrap { max-width: 1050px; margin: auto; }
+h1 { margin: 0; font-size: 32px; }
+header p, .description { color: var(--muted); }
+main { padding: 24px 18px 45px; }
+.toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+input, select {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+input { flex: 1; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 15px;
+}
+.card {
+  padding: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+}
+.tag {
+  color: #c4b5fd;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+.card h2 { margin: 9px 0 6px; font-size: 20px; }
+.card p { color: var(--muted); flex: 1; }
+.meta { color: #8992aa; font-size: 12px; margin-bottom: 13px; }
+.btn {
+  display: block;
+  text-align: center;
+  padding: 11px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  font-weight: 750;
+}
+.btn.disabled { background: #303649; color: #c0c6d8; }
+.notice {
+  margin-top: 22px;
+  padding: 15px;
+  border: 1px solid #4b426e;
+  border-radius: 12px;
+  color: #d9d2ff;
+}
+footer {
+  padding: 22px;
+  text-align: center;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>🎮 MDM PKG Store</h1>
+    <p>Catálogo de jogos, homebrew e utilitários para PS4.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="toolbar">
+    <input id="search" type="search"
+      placeholder="Buscar aplicativo ou jogo...">
+    <select id="category">
+      <option value="all">Todas as categorias</option>
+    </select>
+  </div>
+
+  <div id="grid" class="grid"></div>
+
+  <div class="notice">
+    Os downloads precisam de links válidos. Disponibilize somente
+    arquivos que você tenha autorização para distribuir.
+  </div>
+</main>
+
+<footer>MDM PKG Store • Projeto independente</footer>
+
+<script>
+const apps = [
+  {
+    name: "PES 2021 — PS4",
+    category: "Jogos",
+    version: "CUSA18676",
+    description: "Jogo de futebol para PS4. Adicione um link de download autorizado.",
+    url: ""
+  },
+  {
+    name: "Homebrew para PS4",
+    category: "Homebrew",
+    version: "A definir",
+    description: "Aplicativos homebrew compatíveis com PS4.",
+    url: ""
+  },
+  {
+    name: "Utilitários PS4",
+    category: "Utilitários",
+    version: "A definir",
+    description: "Ferramentas e utilitários para o console.",
+    url: ""
+  }
+];
+
+const grid = document.querySelector("#grid");
+const search = document.querySelector("#search");
+const category = document.querySelector("#category");
+
+[...new Set(apps.map(app => app.category))].sort().forEach(name => {
+  const option = document.createElement("option");
+  option.value = name;
+  option.textContent = name;
+  category.append(option);
+});
+
+function render() {
+  const query = search.value.trim().toLowerCase();
+  const selected = category.value;
+
+  const results = apps.filter(app =>
+    (selected === "all" || app.category === selected) &&
+    `${app.name} ${app.category} ${app.description}`
+      .toLowerCase().includes(query)
+  );
+
+  grid.replaceChildren();
+
+  if (!results.length) {
+    grid.textContent = "Nenhum item encontrado.";
+    return;
+  }
+
+  results.forEach(app => {
+    const card = document.createElement("article");
+    card.className = "card";
+
+    const tag = document.createElement("div");
+    tag.className = "tag";
+    tag.textContent = app.category;
+
+    const title = document.createElement("h2");
+    title.textContent = app.name;
+
+    const description = document.createElement("p");
+    description.textContent = app.description;
+
+    const version = document.createElement("div");
+    version.className = "meta";
+    version.textContent = "Versão: " + app.version;
+
+    const link = document.createElement("a");
+    link.className = "btn";
+
+    if (app.url.trim()) {
+      link.textContent = "Abrir download";
+      link.href = app.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    } else {
+      link.textContent = "Link não configurado";
+      link.href = "#";
+      link.classList.add("disabled");
+      link.setAttribute("aria-disabled", "true");
+      link.addEventListener("click", event => event.preventDefault());
+    }
+
+    card.append(tag, title, description, version, link);
+    grid.append(card);
+  });
+}
+
+search.addEventListener("input", render);
+category.addEventListener("change", render);
+render();
+</script>
+</body>
+</html>
